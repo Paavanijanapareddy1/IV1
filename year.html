@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>D3.js Bar Chart Example</title>
+	<script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+	<div id="chart"></div>
+
+	<script>
+		// Sample data
+		const data = [
+			{ year: "2001", value: 30 },
+			{ year: "2003", value: 25 },
+			{ year: "2005", value: 60 },
+			{ year: "2006", value: 80 },
+			{ year: "2007", value: 70 },
+			{ year: "2008", value: 60 },
+			{ year: "2009", value: 110 },
+			{ year: "2010", value: 120 },
+			{ year: "2011", value: 105},
+            { year: "2011", value: 125},
+		];
+
+		// Set up dimensions of the chart
+		const margin = { top: 5, right: 15, bottom: 30, left: 50 };
+		const width = 400 - margin.left - margin.right;
+		const height = 300 - margin.top - margin.bottom;
+
+		// Create the SVG element for the chart
+		const svg = d3.select("#chart")
+			.append("svg")
+			.attr("width", width + margin.left + margin.right)
+			.attr("height", height + margin.top + margin.bottom)
+			.append("g")
+			.attr("transform", `translate(${margin.left},${margin.top})`);
+
+		// Set up the scales for the x and y axes
+		const x = d3.scaleBand()
+			.domain(data.map(d => d.year))
+			.range([0, width])
+			.padding(0.1);
+		const y = d3.scaleLinear()
+			.domain([0, d3.max(data, d => d.value)])
+			.range([height, 0]);
+
+		// Draw the x and y axes
+		svg.append("g")
+			.attr("transform", `translate(0,${height})`)
+			.call(d3.axisBottom(x));
+		svg.append("g")
+			.call(d3.axisLeft(y));
+
+		// Draw the bars
+		svg.selectAll(".bar")
+			.data(data)
+			.enter()
+			.append("rect")
+			.attr("class", "bar")
+			.attr("x", d => x(d.year))
+			.attr("y", d => y(d.value))
+			.attr("width", x.bandwidth())
+			.attr("height", d => height - y(d.value))
+			.attr("fill", "orange")
+			.on("mouseover", function(d) {
+				// Change the fill color and show a tooltip on mouseover
+				d3.select(this).attr("fill", "purple");
+				svg.append("text")
+					.attr("class", "tooltip")
+					.attr("x", x(d.year) + x.bandwidth() / 2)
+					.attr("y", y(d.value) - 5)
+			})
+			.on("mouseout", function(d) {
+				// Revert the fill color and remove the tooltip on mouseout
+				d3.select(this).attr("fill", "orange");
+				svg.select(".tooltip").remove();
+			});
+</script>
+</body>
+</html>
